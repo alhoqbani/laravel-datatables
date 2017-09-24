@@ -1,9 +1,24 @@
 <template>
     <div class="panel panel-default">
-        <div class="panel-heading">Table Name</div>
+        <div class="panel-heading">{{response.table.toUpperCase()}}</div>
 
         <div class="panel-body">
-            Table
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th v-for="column in response.displayableColumns">{{ column }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="record in response.records">
+                        <td v-for="value, proprty in record">
+                            {{value}}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </template>
@@ -14,7 +29,7 @@
     export default {
         name: 'data-table',
         props: ['endpoint'],
-        data () {
+        data() {
             return {
                 response: {
                     table: '',
@@ -24,7 +39,7 @@
             }
         },
         mounted() {
-            axios.get(`${this.endpoint}`).then(response => this.response = response);
+            axios.get(`${this.endpoint}`).then(response => this.response = response.data);
         }
     }
 </script>
