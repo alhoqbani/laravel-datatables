@@ -26,8 +26,8 @@ abstract class DataTableController extends Controller
     public function index()
     {
         return response()->json([
-           'displayableColumns' => $this->getDisplayableColumns(),
-           'records' => $this->getRecords(),
+            'displayableColumns' => $this->getDisplayableColumns(),
+            'records'            => $this->getRecords(),
         ]);
     }
 
@@ -38,8 +38,16 @@ abstract class DataTableController extends Controller
 
     protected function getDisplayableColumns()
     {
-        return Schema::getColumnListing();
+        return array_diff($this->getColumns(), $this->getHiddenColumns());
     }
 
+    protected function getHiddenColumns()
+    {
+        return $this->builder()->getModel()->getHidden();
+    }
 
+    protected function getColumns()
+    {
+        return Schema::getColumnListing($this->builder()->getModel()->getTable());
+    }
 }
