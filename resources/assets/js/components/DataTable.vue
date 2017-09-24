@@ -42,9 +42,15 @@
                     <tr v-for="record in filteredRecords">
                         <td v-for="value, proprty in record">
                             <template v-if="editing.id == record.id && isUpdatable(proprty)">
-                                <input type="text"
-                                       class="form-control"
-                                       v-model="editing.form[proprty]">
+                                <div class="form-group" :class="{ 'has-error': editing.errors[proprty] }">
+                                    <input type="text"
+                                           :name="proprty"
+                                           class="form-control"
+                                           v-model="editing.form[proprty]">
+                                    <span class="help-block" v-if="editing.errors[proprty]">
+                                            <strong>{{ editing.errors[proprty][0] }}</strong>
+                                        </span>
+                                </div>
                             </template>
                             <template v-else>
                                 {{value}}
@@ -120,7 +126,7 @@
         },
         methods: {
             getRecords() {
-                axios.get(`${this.endpoint}?${this.getQueryParameters()}`).then(response => this.response = response.data);
+                return axios.get(`${this.endpoint}?${this.getQueryParameters()}`).then(response => this.response = response.data);
             },
             getQueryParameters() {
                 return queryString.stringify({
@@ -137,7 +143,16 @@
                 this.editing.form = _.pick(record, this.response.updatable)
             },
             update() {
-
+                axios.patch(`${this.endpoint}/${this.editing.id}`, this.editing.form).then(response => {
+                    this.getRecords().then(response => {
+                        this.editing.id = null
+                        this.editing.form = {}
+                    });
+                }).catch(error => {
+                    if (error.response.status === 422) {
+                        this.editing.errors = error.response.data.errors
+                    }
+                })
             },
             isUpdatable(proprty) {
                 return this.response.updatable.includes(proprty)

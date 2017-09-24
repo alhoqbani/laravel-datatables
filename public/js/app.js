@@ -42102,6 +42102,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 
@@ -42161,7 +42167,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         getRecords: function getRecords() {
             var _this2 = this;
 
-            __WEBPACK_IMPORTED_MODULE_0_axios___default.a.get(this.endpoint + '?' + this.getQueryParameters()).then(function (response) {
+            return __WEBPACK_IMPORTED_MODULE_0_axios___default.a.get(this.endpoint + '?' + this.getQueryParameters()).then(function (response) {
                 return _this2.response = response.data;
             });
         },
@@ -42179,7 +42185,20 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.editing.id = record.id;
             this.editing.form = __WEBPACK_IMPORTED_MODULE_1_lodash__["pick"](record, this.response.updatable);
         },
-        update: function update() {},
+        update: function update() {
+            var _this3 = this;
+
+            __WEBPACK_IMPORTED_MODULE_0_axios___default.a.patch(this.endpoint + '/' + this.editing.id, this.editing.form).then(function (response) {
+                _this3.getRecords().then(function (response) {
+                    _this3.editing.id = null;
+                    _this3.editing.form = {};
+                });
+            }).catch(function (error) {
+                if (error.response.status === 422) {
+                    _this3.editing.errors = error.response.data.errors;
+                }
+            });
+        },
         isUpdatable: function isUpdatable(proprty) {
             return this.response.updatable.includes(proprty);
         }
@@ -42336,31 +42355,60 @@ var render = function() {
                       [
                         _vm.editing.id == record.id && _vm.isUpdatable(proprty)
                           ? [
-                              _c("input", {
-                                directives: [
-                                  {
-                                    name: "model",
-                                    rawName: "v-model",
-                                    value: _vm.editing.form[proprty],
-                                    expression: "editing.form[proprty]"
+                              _c(
+                                "div",
+                                {
+                                  staticClass: "form-group",
+                                  class: {
+                                    "has-error": _vm.editing.errors[proprty]
                                   }
-                                ],
-                                staticClass: "form-control",
-                                attrs: { type: "text" },
-                                domProps: { value: _vm.editing.form[proprty] },
-                                on: {
-                                  input: function($event) {
-                                    if ($event.target.composing) {
-                                      return
+                                },
+                                [
+                                  _c("input", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.editing.form[proprty],
+                                        expression: "editing.form[proprty]"
+                                      }
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: { type: "text", name: proprty },
+                                    domProps: {
+                                      value: _vm.editing.form[proprty]
+                                    },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.$set(
+                                          _vm.editing.form,
+                                          proprty,
+                                          $event.target.value
+                                        )
+                                      }
                                     }
-                                    _vm.$set(
-                                      _vm.editing.form,
-                                      proprty,
-                                      $event.target.value
-                                    )
-                                  }
-                                }
-                              })
+                                  }),
+                                  _vm._v(" "),
+                                  _vm.editing.errors[proprty]
+                                    ? _c(
+                                        "span",
+                                        { staticClass: "help-block" },
+                                        [
+                                          _c("strong", [
+                                            _vm._v(
+                                              _vm._s(
+                                                _vm.editing.errors[proprty][0]
+                                              )
+                                            )
+                                          ])
+                                        ]
+                                      )
+                                    : _vm._e()
+                                ]
+                              )
                             ]
                           : [
                               _vm._v(
