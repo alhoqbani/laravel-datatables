@@ -7,11 +7,13 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th v-for="column in response.displayableColumns">{{ column }}</th>
+                        <th v-for="column in response.displayableColumns">
+                            <span @click="sortBy(column)">{{ column }}</span>
+                        </th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr v-for="record in response.records">
+                    <tr v-for="record in filteredRecords">
                         <td v-for="value, proprty in record">
                             {{value}}
                         </td>
@@ -25,6 +27,7 @@
 
 <script>
     import axios from 'axios';
+    import * as _ from "lodash";
 
     export default {
         name: 'data-table',
@@ -35,7 +38,35 @@
                     table: '',
                     displayableColumns: [],
                     records: [],
+                },
+                sort: {
+                    key: 'id',
+                    order: 'asc'
                 }
+            }
+        },
+        computed: {
+            filteredRecords() {
+                let data = this.response.records;
+
+                if (this.sort.key) {
+                    data = _.orderBy(data, (i) => {
+                        let value = i[this.sort.key]
+
+                        if (!isNaN(parseFloat(value))) {
+                            return parseFloat(value);
+                        }
+                        return String(value).toLowerCase()
+                    }, this.sort.order)
+                }
+
+                return data
+            }
+        },
+        methods: {
+            sortBy(column) {
+                this.sort.key = column;
+                this.sort.order = this.sort.order === 'asc' ? 'desc' : 'asc';
             }
         },
         mounted() {
