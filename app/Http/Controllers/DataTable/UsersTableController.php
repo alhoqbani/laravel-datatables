@@ -15,4 +15,12 @@ class UsersTableController extends DataTableController
     {
         return User::query();
     }
+
+    public function getUpdatableColumns()
+    {
+        return [
+            'name', 'email', 'created_at'
+        ];
+    }
+
 }

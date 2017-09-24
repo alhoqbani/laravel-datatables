@@ -33,12 +33,30 @@
                                 ></div>
                             </div>
                         </th>
+                        <th>
+                            &nbsp;
+                        </th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr v-for="record in filteredRecords">
                         <td v-for="value, proprty in record">
-                            {{value}}
+                            <template v-if="editing.id == record.id && isUpdatable(proprty)">
+                                <input type="text"
+                                       class="form-control"
+                                       v-model="editing.form[proprty]">
+                            </template>
+                            <template v-else>
+                                {{value}}
+                            </template>
+                        </td>
+                        <td>
+                            <a href="#" @click.prevent="edit(record)" v-if="editing.id !== record.id">Edit</a>
+
+                            <template v-if="editing.id === record.id">
+                                <a href="#" @click.prevent="update">Save</a><br>
+                                <a href="#" @click.prevent="editing.id = null">Cancel</a>
+                            </template>
                         </td>
                     </tr>
                     </tbody>
@@ -69,6 +87,11 @@
                 },
                 quickSearchQuery: '',
                 limit: 50,
+                editing: {
+                    id: null,
+                    form: {},
+                    errors: []
+                }
             }
         },
         computed: {
@@ -107,7 +130,18 @@
             sortBy(column) {
                 this.sort.key = column;
                 this.sort.order = this.sort.order === 'asc' ? 'desc' : 'asc';
-            }
+            },
+            edit(record) {
+                this.editing.errors = []
+                this.editing.id = record.id
+                this.editing.form = _.pick(record, this.response.updatable)
+            },
+            update() {
+
+            },
+            isUpdatable(proprty) {
+                return this.response.updatable.includes(proprty)
+            },
         },
         mounted() {
             this.getRecords();

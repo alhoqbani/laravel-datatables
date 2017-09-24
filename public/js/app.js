@@ -42084,6 +42084,24 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -42104,7 +42122,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 order: 'asc'
             },
             quickSearchQuery: '',
-            limit: 50
+            limit: 50,
+            editing: {
+                id: null,
+                form: {},
+                errors: []
+            }
         };
     },
 
@@ -42150,6 +42173,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         sortBy: function sortBy(column) {
             this.sort.key = column;
             this.sort.order = this.sort.order === 'asc' ? 'desc' : 'asc';
+        },
+        edit: function edit(record) {
+            this.editing.errors = [];
+            this.editing.id = record.id;
+            this.editing.form = __WEBPACK_IMPORTED_MODULE_1_lodash__["pick"](record, this.response.updatable);
+        },
+        update: function update() {},
+        isUpdatable: function isUpdatable(proprty) {
+            return this.response.updatable.includes(proprty);
         }
     },
     mounted: function mounted() {
@@ -42253,33 +42285,42 @@ var render = function() {
           _c("thead", [
             _c(
               "tr",
-              _vm._l(_vm.response.displayableColumns, function(column) {
-                return _c("th", [
-                  _c(
-                    "div",
-                    {
-                      staticClass: "sortable",
-                      on: {
-                        click: function($event) {
-                          _vm.sortBy(column)
+              [
+                _vm._l(_vm.response.displayableColumns, function(column) {
+                  return _c("th", [
+                    _c(
+                      "div",
+                      {
+                        staticClass: "sortable",
+                        on: {
+                          click: function($event) {
+                            _vm.sortBy(column)
+                          }
                         }
-                      }
-                    },
-                    [
-                      _vm._v(_vm._s(column) + "\n                            "),
-                      _vm.sort.key === column
-                        ? _c("div", {
-                            staticClass: "arrow",
-                            class: {
-                              "arrow--asc": _vm.sort.order === "asc",
-                              "arrow--desc": _vm.sort.order === "desc"
-                            }
-                          })
-                        : _vm._e()
-                    ]
-                  )
+                      },
+                      [
+                        _vm._v(
+                          _vm._s(column) + "\n                            "
+                        ),
+                        _vm.sort.key === column
+                          ? _c("div", {
+                              staticClass: "arrow",
+                              class: {
+                                "arrow--asc": _vm.sort.order === "asc",
+                                "arrow--desc": _vm.sort.order === "desc"
+                              }
+                            })
+                          : _vm._e()
+                      ]
+                    )
+                  ])
+                }),
+                _vm._v(" "),
+                _c("th", [
+                  _vm._v("\n                         \n                    ")
                 ])
-              })
+              ],
+              2
             )
           ]),
           _vm._v(" "),
@@ -42288,15 +42329,107 @@ var render = function() {
             _vm._l(_vm.filteredRecords, function(record) {
               return _c(
                 "tr",
-                _vm._l(record, function(value, proprty) {
-                  return _c("td", [
-                    _vm._v(
-                      "\n                        " +
-                        _vm._s(value) +
-                        "\n                    "
+                [
+                  _vm._l(record, function(value, proprty) {
+                    return _c(
+                      "td",
+                      [
+                        _vm.editing.id == record.id && _vm.isUpdatable(proprty)
+                          ? [
+                              _c("input", {
+                                directives: [
+                                  {
+                                    name: "model",
+                                    rawName: "v-model",
+                                    value: _vm.editing.form[proprty],
+                                    expression: "editing.form[proprty]"
+                                  }
+                                ],
+                                staticClass: "form-control",
+                                attrs: { type: "text" },
+                                domProps: { value: _vm.editing.form[proprty] },
+                                on: {
+                                  input: function($event) {
+                                    if ($event.target.composing) {
+                                      return
+                                    }
+                                    _vm.$set(
+                                      _vm.editing.form,
+                                      proprty,
+                                      $event.target.value
+                                    )
+                                  }
+                                }
+                              })
+                            ]
+                          : [
+                              _vm._v(
+                                "\n                            " +
+                                  _vm._s(value) +
+                                  "\n                        "
+                              )
+                            ]
+                      ],
+                      2
                     )
-                  ])
-                })
+                  }),
+                  _vm._v(" "),
+                  _c(
+                    "td",
+                    [
+                      _vm.editing.id !== record.id
+                        ? _c(
+                            "a",
+                            {
+                              attrs: { href: "#" },
+                              on: {
+                                click: function($event) {
+                                  $event.preventDefault()
+                                  _vm.edit(record)
+                                }
+                              }
+                            },
+                            [_vm._v("Edit")]
+                          )
+                        : _vm._e(),
+                      _vm._v(" "),
+                      _vm.editing.id === record.id
+                        ? [
+                            _c(
+                              "a",
+                              {
+                                attrs: { href: "#" },
+                                on: {
+                                  click: function($event) {
+                                    $event.preventDefault()
+                                    _vm.update($event)
+                                  }
+                                }
+                              },
+                              [_vm._v("Save")]
+                            ),
+                            _c("br"),
+                            _vm._v(" "),
+                            _c(
+                              "a",
+                              {
+                                attrs: { href: "#" },
+                                on: {
+                                  click: function($event) {
+                                    $event.preventDefault()
+                                    _vm.editing.id = null
+                                  }
+                                }
+                              },
+                              [_vm._v("Cancel")]
+                            )
+                          ]
+                        : _vm._e()
+                    ],
+                    2
+                  )
+                ],
+                2
               )
             })
           )
