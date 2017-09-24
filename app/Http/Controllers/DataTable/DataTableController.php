@@ -4,6 +4,7 @@ namespace App\Http\Controllers\DataTable;
 
 use Illuminate\Database\Eloquent\Builder;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Schema;
 
 abstract class DataTableController extends Controller
 {
@@ -24,6 +25,21 @@ abstract class DataTableController extends Controller
 
     public function index()
     {
-        return $this->builder()->paginate();
+        return response()->json([
+           'displayableColumns' => $this->getDisplayableColumns(),
+           'records' => $this->getRecords(),
+        ]);
     }
+
+    protected function getRecords()
+    {
+        return $this->builder()->get();
+    }
+
+    protected function getDisplayableColumns()
+    {
+        return Schema::getColumnListing();
+    }
+
+
 }
